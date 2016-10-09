@@ -10,6 +10,9 @@
 			"email": "philip.verbist@gmail.com"
 		}
 	],
+        "require": {
+            "verbi/yii2-helpers": "*"
+        },
 	"support": {
 		"source": "https://github.com/verbi/yii2-extended-activerecord"
 	},
