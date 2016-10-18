@@ -6,6 +6,7 @@ use verbi\yii2ExtendedActiveRecord\behaviors\ModelFormBehavior;
 use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
 use verbi\yii2Helpers\behaviors\base\ComponentBehavior;
+use verbi\yii2ExtendedActiveRecord\base\ModelEvent;
 use Yii;
 
 /**
