@@ -57,7 +57,7 @@ class ActiveRecord extends \yii\db\ActiveRecord {
      * @return ActiveQuery the newly created [[ActiveQuery]] instance.
      */
     public static function find() {
-        return \Yii::createObject(XActiveQuery::className(), [get_called_class()]);
+        return \Yii::createObject(ActiveQuery::className(), [get_called_class()]);
     }
 
     /**
