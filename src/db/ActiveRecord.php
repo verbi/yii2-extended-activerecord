@@ -161,7 +161,7 @@ class ActiveRecord extends \yii\db\ActiveRecord {
         if (!$this->beforeSetAttributes($attributes, $safeOnly)) {
             return false;
         }
-        $result = parent::setAttributes();
+        $result = parent::setAttributes($attributes, $safeOnly);
         $this->afterSetAttributes($attributes, $safeOnly);
         return $result;
     }
