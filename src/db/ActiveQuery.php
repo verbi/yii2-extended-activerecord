@@ -7,15 +7,7 @@ namespace verbi\yii2ExtendedActiveRecord\db;
  * @license https://opensource.org/licenses/GPL-3.0
  */
 class ActiveQuery extends \yii\db\ActiveQuery  {
-    
-    /**
-     * @inheritdoc
-     */
-    public function behaviors() {
-        return array_merge(parent::behaviors(), [
-            \verbi\yii2Helpers\behaviors\base\ComponentBehavior::className(),
-        ]);
-    }
+    use \verbi\yii2Helpers\traits\ComponentTrait;
     
     /**
      * @inheritdoc

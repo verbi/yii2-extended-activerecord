@@ -11,11 +11,10 @@ use verbi\yii2ExtendedActiveRecord\behaviors\ModelFormBehavior;
  */
 class Model extends \yii\base\Model
 {
+    use \verbi\yii2Helpers\traits\ComponentTrait;
     public function behaviors()
     {
         return array_merge(parent::behaviors(),[
-            // get field names
-            \verbi\yii2Helpers\behaviors\base\ComponentBehavior::className(),
             ModelFormBehavior::className(),
         ]);
     }

@@ -5,7 +5,6 @@ namespace verbi\yii2ExtendedActiveRecord\db;
 use Yii;
 use Exception;
 use verbi\yii2ExtendedActiveRecord\db\ActiveRecord;
-use verbi\yii2Helpers\behaviors\base\ComponentBehavior;
 
 /**
  * @author Philip Verbist <philip.verbist@gmail.com>
@@ -13,18 +12,8 @@ use verbi\yii2Helpers\behaviors\base\ComponentBehavior;
  * @license https://opensource.org/licenses/GPL-3.0
  */
 class LoggedActiveRecord extends ActiveRecord {
+    use \verbi\yii2Helpers\traits\ComponentTrait;
     
-    /**
-     * Add The base component behavior
-     * 
-     * @inheritdoc
-     */
-    public function behaviors() {
-        return array_merge(parent::behaviors(), [
-            ComponentBehavior::className(),
-        ]);
-    }
-
     /**
      * Saves and logs.
      * 

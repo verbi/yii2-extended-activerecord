@@ -11,17 +11,7 @@ use verbi\yii2ExtendedActiveRecord\db\ActiveRecord;
  * @license https://opensource.org/licenses/GPL-3.0
  */
 class LogActiveRecord extends ActiveRecord {
-
-    /**
-     * Add The base component behavior
-     * 
-     * @return type
-     */
-    public function behaviors() {
-        return array_merge(parent::behaviors(), [
-            \verbi\yii2Helpers\behaviors\base\ComponentBehavior::className(),
-        ]);
-    }
+    use \verbi\yii2Helpers\traits\ComponentTrait;
 
     /**
      * @inheritdoc
