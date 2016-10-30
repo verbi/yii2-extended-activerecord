@@ -5,7 +5,6 @@ namespace verbi\yii2ExtendedActiveRecord\db;
 use verbi\yii2ExtendedActiveRecord\behaviors\ModelFormBehavior;
 use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
-use verbi\yii2Helpers\behaviors\base\ComponentBehavior;
 use verbi\yii2ExtendedActiveRecord\base\ModelEvent;
 use Yii;
 
@@ -15,18 +14,32 @@ use Yii;
  * @license https://opensource.org/licenses/GPL-3.0
  */
 class ActiveRecord extends \yii\db\ActiveRecord {
-
+    use \verbi\yii2Helpers\traits\ComponentTrait;
+    
     const EVENT_BEFORE_SETATTRIBUTES = 'beforeSetAttributes';
     const EVENT_AFTER_SETATTRIBUTES = 'afterSetAttributes';
     const EVENT_BEFORE_RULES = 'beforeRules';
     const EVENT_AFTER_RULES = 'afterRules';
 
     /**
+     * @var array attribute values indexed by attribute names
+     */
+    protected $_attributes = [];
+    /**
+     * @var array|null old attribute values indexed by attribute names.
+     * This is `null` if the record [[isNewRecord|is new]].
+     */
+    protected $_oldAttributes;
+    /**
+     * @var array related models indexed by the relation names
+     */
+    protected $_related = [];
+    
+    /**
      * @inheritdoc
      */
     public function behaviors() {
         return array_merge(parent::behaviors(), [
-            ComponentBehavior::className(),
             // get field names
             ModelFormBehavior::className(),
         ]);
@@ -40,6 +53,7 @@ class ActiveRecord extends \yii\db\ActiveRecord {
             return false;
         }
         $rules = parent::rules();
+        $this->afterRules();
         return $rules;
     }
 
@@ -166,16 +180,16 @@ class ActiveRecord extends \yii\db\ActiveRecord {
         return $result;
     }
 
-    protected function beforeSetAttributes($attributes, $safeOnly = true) {
+    protected function beforeSetAttributes(&$attributes, $safeOnly = true) {
         $event = new ModelEvent;
-        $event->data = ['attributes' => $attributes, 'safeOnly' => $safeOnly,];
+        $event->data = ['attributes' => &$attributes, 'safeOnly' => $safeOnly,];
         $this->trigger(self::EVENT_BEFORE_SETATTRIBUTES, $event);
         return $event->isValid;
     }
 
-    protected function afterSetAttributes($attributes, $safeOnly = true) {
+    protected function afterSetAttributes(&$attributes, $safeOnly = true) {
         $event = new ModelEvent;
-        $event->data = ['attributes' => $attributes, 'safeOnly' => $safeOnly,];
+        $event->data = ['attributes' => &$attributes, 'safeOnly' => $safeOnly,];
         $this->trigger(self::EVENT_AFTER_SETATTRIBUTES, $event);
         return $event->isValid;
     }
