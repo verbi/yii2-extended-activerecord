@@ -25,15 +25,17 @@ class ActiveRecord extends \yii\db\ActiveRecord {
      * @var array attribute values indexed by attribute names
      */
     protected $_attributes = [];
+    
     /**
      * @var array|null old attribute values indexed by attribute names.
      * This is `null` if the record [[isNewRecord|is new]].
      */
     protected $_oldAttributes;
+    
     /**
      * @var array related models indexed by the relation names
      */
-    protected $_related = [];
+    public $_related = [];
     
     /**
      * @inheritdoc
@@ -57,7 +59,6 @@ class ActiveRecord extends \yii\db\ActiveRecord {
         return $rules;
     }
 
-    
     protected function beforeRules() {
         
     }
