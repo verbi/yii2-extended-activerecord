@@ -14,7 +14,7 @@ use Yii;
  * @license https://opensource.org/licenses/GPL-3.0
  */
 class ActiveRecord extends \yii\db\ActiveRecord {
-    use \verbi\yii2Helpers\traits\ComponentTrait;
+    use \verbi\yii2ExtendedActiveRecord\traits\ActiveRecordTrait;
     
     const EVENT_BEFORE_SETATTRIBUTES = 'beforeSetAttributes';
     const EVENT_AFTER_SETATTRIBUTES = 'afterSetAttributes';
@@ -31,11 +31,6 @@ class ActiveRecord extends \yii\db\ActiveRecord {
      * This is `null` if the record [[isNewRecord|is new]].
      */
     protected $_oldAttributes;
-    
-    /**
-     * @var array related models indexed by the relation names
-     */
-    public $_related = [];
     
     /**
      * @inheritdoc
