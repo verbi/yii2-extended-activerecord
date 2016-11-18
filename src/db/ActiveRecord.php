@@ -95,7 +95,7 @@ class ActiveRecord extends \yii\db\ActiveRecord {
         }
         return false;
     }
-
+    
     public function saveAll($models, $runValidation = true, $attributeNames = null) {
         $db = static::getDb();
         $sql = '';
