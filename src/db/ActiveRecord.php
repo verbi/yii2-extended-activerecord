@@ -3,6 +3,8 @@
 namespace verbi\yii2ExtendedActiveRecord\db;
 
 use verbi\yii2ExtendedActiveRecord\behaviors\ModelFormBehavior;
+use verbi\yii2Helpers\events\GeneralFunctionEvent;
+use verbi\yii2Helpers\base\ArrayObject;
 use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
 use verbi\yii2ExtendedActiveRecord\base\ModelEvent;
@@ -15,12 +17,15 @@ use Yii;
  */
 class ActiveRecord extends \yii\db\ActiveRecord {
     use \verbi\yii2ExtendedActiveRecord\traits\ActiveRecordTrait;
+    use \verbi\yii2ExtendedActiveRecord\traits\ModelFormTrait;
     
     const EVENT_BEFORE_SETATTRIBUTES = 'beforeSetAttributes';
     const EVENT_AFTER_SETATTRIBUTES = 'afterSetAttributes';
     const EVENT_BEFORE_RULES = 'beforeRules';
     const EVENT_AFTER_RULES = 'afterRules';
-
+    const EVENT_BEFORE_CREATE_VALIDATORS = 'beforeCreateValidators';
+    const EVENT_AFTER_CREATE_VALIDATORS = 'afterCreateValidators';
+    
     /**
      * @var array attribute values indexed by attribute names
      */
@@ -31,35 +36,30 @@ class ActiveRecord extends \yii\db\ActiveRecord {
      * This is `null` if the record [[isNewRecord|is new]].
      */
     protected $_oldAttributes;
-    
-    /**
-     * @inheritdoc
-     */
-    public function behaviors() {
-        return array_merge(parent::behaviors(), [
-            // get field names
-            ModelFormBehavior::className(),
-        ]);
-    }
 
     /**
      * @inheritdoc
      */
     public function rules() {
         if (!$this->beforeRules()) {
-            return false;
+            return [];
         }
         $rules = parent::rules();
-        $this->afterRules();
+        $this->afterRules($rules);
         return $rules;
     }
 
     protected function beforeRules() {
-        
+        $event = new ModelEvent;
+        $this->trigger(self::EVENT_BEFORE_RULES, $event);
+        return $event->isValid;
     }
 
-    protected function afterRules($rules) {
-        
+    protected function afterRules(&$rules) {
+        $event = new ModelEvent;
+        $event->data = ['rules' => &$rules,];
+        $this->trigger(self::EVENT_AFTER_RULES, $event);
+        return $event->isValid;
     }
 
     /**
@@ -224,5 +224,28 @@ class ActiveRecord extends \yii\db\ActiveRecord {
             $user = \Yii::$app->getUser()->getIdentity();
         }
         return $user;
+    }
+    
+    public function createValidators()
+    {
+        $validators = new ArrayObject;
+        if (!$this->beforeCreateValidators()) {
+            return [];
+        }
+        $validators->exchangeArray((array) parent::createValidators());
+        return $this->afterCreateValidators($validators);
+    }
+    
+    protected function beforeCreateValidators() {
+        $event = new GeneralFunctionEvent;
+        $this->trigger(self::EVENT_BEFORE_CREATE_VALIDATORS, $event);
+        return $event->isValid;
+    }
+
+    protected function afterCreateValidators(&$validators) {
+        $event = new GeneralFunctionEvent;
+        $event->params = ['validators' => &$validators,];
+        $this->trigger(self::EVENT_AFTER_CREATE_VALIDATORS, $event);
+        return $event->hasReturnValue()?$event->getReturnValue():$validators;
     }
 }
