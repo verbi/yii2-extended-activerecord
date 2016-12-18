@@ -1,13 +1,13 @@
 <?php
 namespace verbi\yii2ExtendedActiveRecord\traits;
-use verbi\yii2Helpers\behaviors\base\Behavior;
+
 use verbi\yii2DynamicForms\components\Form;
 use verbi\yii2Helpers\events\GeneralFunctionEvent;
+use yii\web\JsExpression;
 
 trait ModelFormTrait {
     public static $EVENT_BEFORE_GET_FORM_ATTRIBUTES = 'beforeGetFormAttributes';
     public static $EVENT_AFTER_GET_FORM_ATTRIBUTES = 'afterGetFormAttributes';
-
     public $attributeFormInputTypes = [];
     public $formInputs = [
         'boolean' => Form::INPUT_CHECKBOX,
@@ -26,15 +26,15 @@ trait ModelFormTrait {
         'email' => [],
         'url' => [],
     ];
-    
+
     public function getFormAttributes() {
-        if(!$this->beforeGetFormAttributes()) {
+        if (!$this->beforeGetFormAttributes()) {
             return [];
         }
         $attributes = $this->getAttributes();
         return $this->afterGetFormAttributes($attributes);
     }
-    
+
     protected function beforeGetFormAttributes() {
         $event = new GeneralFunctionEvent;
         $this->trigger(self::$EVENT_BEFORE_GET_FORM_ATTRIBUTES, $event);
@@ -45,9 +45,9 @@ trait ModelFormTrait {
         $event = new GeneralFunctionEvent;
         $event->params = ['attributes' => &$attributes,];
         $this->trigger(self::$EVENT_AFTER_GET_FORM_ATTRIBUTES, $event);
-        return $event->hasReturnValue()?$event->getReturnValue():$attributes;
+        return $event->hasReturnValue() ? $event->getReturnValue() : $attributes;
     }
-    
+
     public function getAttributesForForm() {
         $attributes = array();
         foreach ($this->getFormAttributes() as $attribute => $value) {
@@ -84,10 +84,6 @@ trait ModelFormTrait {
         return $this->generateActiveField($name);
     }
 
-    /*public static function getTableSchema() {
-        return false;
-    }*/
-
     public function generateActiveField($attribute) {
         $column = $this->getAttributeColumn($attribute);
         if ($column && isset($this->formInputs[$this->generateColumnFormat($column)])) {
@@ -109,6 +105,42 @@ trait ModelFormTrait {
             } elseif ($column->phpType !== 'string' || $column->size === null) {
                 return $input;
             } else {
+                return $input;
+            }
+        } else {
+            $relation = $this->owner->getRelation($attribute, false);
+            if ($relation instanceof \yii\db\ActiveQueryInterface) {
+                $input = [
+                    'type' => Form::INPUT_WIDGET,
+                    'widgetClass' => \xsonline\yii2Helpers\widgets\Select::classname(),
+                    'options' => [
+                        'options' => [
+                            'multiple' => true,
+                        ],
+                        'pluginOptions' => [
+                            'ajax' => [
+                                'url' => \yii\helpers\Url::to([
+                                    'suggestions',
+                                    'relation' => $attribute,
+                                ]),
+                                'dataType' => 'json',
+                                'data' => new JsExpression('function(params) { return {"q":params.term }}'),
+                                'processResults' => new JsExpression('function (data, params) {'
+                                    . 'var items = new Array();'
+                                    . 'for (var i = 0; data.length > i; i++) {'
+                                        . 'items.push( {id:data[i].id,text:data[i].text});'
+                                    . '}'
+                                    . 'return {'
+                                        . 'results: items'
+                                    . '};'
+                                . '}'),
+                            ],
+                            'tags' => false,
+                            'maximumInputLength' => 20,
+                            'maximumSelectionLength' => 10,
+                        ],
+                    ],
+                ];
                 return $input;
             }
         }
