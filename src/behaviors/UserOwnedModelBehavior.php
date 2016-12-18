@@ -22,9 +22,10 @@ class UserOwnedModelBehavior extends Behavior {
     
     public function afterGetFormAttributes(GeneralFunctionEvent $event) {
         if($this->owner && isset($event->params['attributes']) && array_key_exists('owner_id',$event->params['attributes'])) {
-            $attributes = $event->params['attributes'];
-            unset($attributes['owner_id']);
-            $event->setReturnValue($attributes);
+            $params = $event->params;
+            unset($params['attributes']['owner_id']);
+            $event->setparams($params);
+            $event->setReturnValue($params['attributes']);
         }
     }
     
