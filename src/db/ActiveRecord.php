@@ -2,7 +2,6 @@
 
 namespace verbi\yii2ExtendedActiveRecord\db;
 
-use verbi\yii2ExtendedActiveRecord\behaviors\ModelFormBehavior;
 use verbi\yii2Helpers\events\GeneralFunctionEvent;
 use verbi\yii2Helpers\base\ArrayObject;
 use yii\helpers\Inflector;
@@ -209,7 +208,7 @@ class ActiveRecord extends \yii\db\ActiveRecord {
         /* @var $class \yii\db\ActiveRecord */
         $pk = $this->primaryKey();
         $str = '';
-        foreach ($pk as $key => $value) {
+        foreach ($pk as $value) {
             $str .= ' ' . $this->$value;
         }
         return trim($str);
@@ -247,5 +246,61 @@ class ActiveRecord extends \yii\db\ActiveRecord {
         $event->params = ['validators' => &$validators,];
         $this->trigger(self::EVENT_AFTER_CREATE_VALIDATORS, $event);
         return $event->hasReturnValue()?$event->getReturnValue():$validators;
+    }
+    
+    public function link($name, $model, $extraColumns = []) {
+        
+
+        try {
+            return parent::link($name, $model, $extraColumns);
+        }
+        catch(\yii\db\IntegrityException $e) {
+            $relation = $this->getRelation($name);
+            if($relation->via !== null /*&& $this->isLinked($name,$model)*/) {
+                if (is_array($relation->via)) {
+                    /* @var $viaRelation ActiveQuery */
+                    list($viaName, $viaRelation) = $relation->via;
+                    $viaClass = $viaRelation->modelClass;
+                } else {
+                    $viaRelation = $relation->via;
+                    $viaTable = reset($relation->via->from);
+                }
+                $columns = [];
+                foreach ($viaRelation->link as $a => $b) {
+                    $columns[$a] = $this->$b;
+                }
+                foreach ($relation->link as $a => $b) {
+                    $columns[$b] = $model->$a;
+                }
+                foreach ($extraColumns as $k => $v) {
+                    $columns[$k] = $v;
+                }
+                if (is_array($relation->via)) {
+                    /* @var $viaClass ActiveRecordInterface */
+                    /* @var $record ActiveRecordInterface */
+                    $record = new $viaClass();
+                    foreach ($columns as $column => $value) {
+                        $record->$column = $value;
+                    }
+                    $record->update(false);
+                } else {
+                    $db = static::getDb();
+                    $primaryKey = $db->getSchema()
+                            ->getTableSchema($viaTable)
+                            ->primaryKey;
+                    $primaryKeyValues = [];
+                    array_walk($primaryKey, function(&$var)
+                            use (&$primaryKeyValues, &$columns) {
+                        $primaryKeyValues[$var] = $columns[$var];
+                            });
+                    /* @var $viaTable string */
+                    $db->createCommand()
+                            ->update($viaTable, $columns, $primaryKeyValues)
+                            ->execute();
+                }
+                return true;
+            }
+            throw $e;
+        }
     }
 }
