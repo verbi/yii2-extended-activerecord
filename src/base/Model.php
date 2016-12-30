@@ -1,6 +1,5 @@
 <?php
 namespace verbi\yii2ExtendedActiveRecord\base;
-use verbi\yii2ExtendedActiveRecord\behaviors\ModelFormBehavior;
 
 /**
  * LoginForm is the model behind the login form.
@@ -12,10 +11,5 @@ use verbi\yii2ExtendedActiveRecord\behaviors\ModelFormBehavior;
 class Model extends \yii\base\Model
 {
     use \verbi\yii2Helpers\traits\ComponentTrait;
-    public function behaviors()
-    {
-        return array_merge(parent::behaviors(),[
-            ModelFormBehavior::className(),
-        ]);
-    }
+    use \verbi\yii2Helpers\traits\ModelFormTrait;
 }
