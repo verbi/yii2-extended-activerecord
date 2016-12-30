@@ -2,11 +2,6 @@
 
 namespace verbi\yii2ExtendedActiveRecord\db;
 
-use verbi\yii2Helpers\events\GeneralFunctionEvent;
-use verbi\yii2Helpers\base\ArrayObject;
-use yii\helpers\Inflector;
-use yii\helpers\StringHelper;
-use verbi\yii2ExtendedActiveRecord\base\ModelEvent;
 use Yii;
 
 /**
@@ -18,81 +13,31 @@ class ActiveRecord extends \yii\db\ActiveRecord {
     use \verbi\yii2ExtendedActiveRecord\traits\ActiveRecordTrait;
     use \verbi\yii2ExtendedActiveRecord\traits\ModelFormTrait;
     
-    const EVENT_BEFORE_SETATTRIBUTES = 'beforeSetAttributes';
-    const EVENT_AFTER_SETATTRIBUTES = 'afterSetAttributes';
-    const EVENT_BEFORE_RULES = 'beforeRules';
-    const EVENT_AFTER_RULES = 'afterRules';
-    const EVENT_BEFORE_CREATE_VALIDATORS = 'beforeCreateValidators';
-    const EVENT_AFTER_CREATE_VALIDATORS = 'afterCreateValidators';
-    
-    /**
-     * @var array attribute values indexed by attribute names
-     */
-    protected $_attributes = [];
-    
-    /**
-     * @var array|null old attribute values indexed by attribute names.
-     * This is `null` if the record [[isNewRecord|is new]].
-     */
-    protected $_oldAttributes;
-
-    /**
-     * @inheritdoc
-     */
-    public function rules() {
-        if (!$this->beforeRules()) {
-            return [];
-        }
-        $rules = parent::rules();
-        $this->afterRules($rules);
-        return $rules;
-    }
-
-    protected function beforeRules() {
-        $event = new ModelEvent;
-        $this->trigger(self::EVENT_BEFORE_RULES, $event);
-        return $event->isValid;
-    }
-
-    protected function afterRules(&$rules) {
-        $event = new ModelEvent;
-        $event->data = ['rules' => &$rules,];
-        $this->trigger(self::EVENT_AFTER_RULES, $event);
-        return $event->isValid;
-    }
+    protected $_activeQueryClass = '\\verbi\\yii2ExtendedActiveRecord\\db\\ActiveQuery';
+    protected $_queryClass = '\\verbi\\yii2ExtendedActiveRecord\\db\\Query';
 
     /**
      * @inheritdoc
      * @return ActiveQuery the newly created [[ActiveQuery]] instance.
      */
-    public static function find() {
-        return \Yii::createObject(ActiveQuery::className(), [get_called_class()]);
+    public static function find()
+    {
+        return Yii::createObject(ActiveQuery::className(), [get_called_class()]);
     }
-
+    
     /**
      * @inheritdoc
      */
     public function findUnauthorized() {
         return parent::find();
     }
-
-    public function getAccessRule($identity = null) {
-        return array();
-    }
-
+    
     public function getAccessQuery($identity) {
-        $query = (new \yii\db\Query())
+        $query = (new Query())
                 ->select('id')
                 ->from($this->tableName())
                 ->where($this->getAccessRule($identity));
         return $query;
-    }
-
-    public function checkAccess($identity) {
-        if ($this->find()->Where($this->getAccessRule($identity))->andWhere($this->getPrimaryKey(true))->one()) {
-            return true;
-        }
-        return false;
     }
     
     public function saveAll($models, $runValidation = true, $attributeNames = null) {
@@ -163,94 +108,7 @@ class ActiveRecord extends \yii\db\ActiveRecord {
         }
     }
 
-    /**
-     * @inheritdoc
-     */
-    public function setAttributes($attributes, $safeOnly = true) {
-        if (!$this->beforeSetAttributes($attributes, $safeOnly)) {
-            return false;
-        }
-        $result = parent::setAttributes($attributes, $safeOnly);
-        $this->afterSetAttributes($attributes, $safeOnly);
-        return $result;
-    }
-
-    protected function beforeSetAttributes(&$attributes, $safeOnly = true) {
-        $event = new ModelEvent;
-        $event->data = ['attributes' => &$attributes, 'safeOnly' => $safeOnly,];
-        $this->trigger(self::EVENT_BEFORE_SETATTRIBUTES, $event);
-        return $event->isValid;
-    }
-
-    protected function afterSetAttributes(&$attributes, $safeOnly = true) {
-        $event = new ModelEvent;
-        $event->data = ['attributes' => &$attributes, 'safeOnly' => $safeOnly,];
-        $this->trigger(self::EVENT_AFTER_SETATTRIBUTES, $event);
-        return $event->isValid;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function isAttributeSafe($attribute) {
-
-        if ($this->owner->isPrimaryKey([$attribute]))
-            return false;
-        return parent::isAttributeSafe($attribute);
-    }
-
-    public function __toString() {
-        foreach ($this->attributes() as $name => $value) {
-            if (!strcasecmp($name, 'name') || !strcasecmp($name, 'title')) {
-                return $this->$name;
-            }
-        }
-        /* @var $class \yii\db\ActiveRecord */
-        $pk = $this->primaryKey();
-        $str = '';
-        foreach ($pk as $value) {
-            $str .= ' ' . $this->$value;
-        }
-        return trim($str);
-    }
-
-    public function label() {
-        return Inflector::camel2words(StringHelper::basename($this->className()));
-    }
-
-    protected function getCurrentUser($user = null) {
-        if (!$user && !\Yii::$app->getUser()->isGuest) {
-            $user = \Yii::$app->getUser()->getIdentity();
-        }
-        return $user;
-    }
-    
-    public function createValidators()
-    {
-        $validators = new ArrayObject;
-        if (!$this->beforeCreateValidators()) {
-            return [];
-        }
-        $validators->exchangeArray((array) parent::createValidators());
-        return $this->afterCreateValidators($validators);
-    }
-    
-    protected function beforeCreateValidators() {
-        $event = new GeneralFunctionEvent;
-        $this->trigger(self::EVENT_BEFORE_CREATE_VALIDATORS, $event);
-        return $event->isValid;
-    }
-
-    protected function afterCreateValidators(&$validators) {
-        $event = new GeneralFunctionEvent;
-        $event->params = ['validators' => &$validators,];
-        $this->trigger(self::EVENT_AFTER_CREATE_VALIDATORS, $event);
-        return $event->hasReturnValue()?$event->getReturnValue():$validators;
-    }
-    
     public function link($name, $model, $extraColumns = []) {
-        
-
         try {
             return parent::link($name, $model, $extraColumns);
         }
