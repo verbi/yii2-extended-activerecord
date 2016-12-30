@@ -10,6 +10,7 @@ trait ModelFormTrait {
     public static $EVENT_AFTER_GET_FORM_ATTRIBUTES = 'afterGetFormAttributes';
     public $attributeFormInputTypes = [];
     public $formInputs = [
+        'text' => Form::INPUT_TEXT,
         'boolean' => Form::INPUT_CHECKBOX,
         'ntext' => Form::INPUT_TEXTAREA,
         'password' => Form::INPUT_PASSWORD,
@@ -107,8 +108,8 @@ trait ModelFormTrait {
             } else {
                 return $input;
             }
-        } else {
-            $relation = $this->owner->getRelation($attribute, false);
+        } elseif($this->hasMethod('getRelation')) {
+            $relation = $this->getRelation($attribute, false);
             if ($relation instanceof \yii\db\ActiveQueryInterface) {
                 $input = [
                     'type' => Form::INPUT_WIDGET,
@@ -144,6 +145,7 @@ trait ModelFormTrait {
                 return $input;
             }
         }
+        return $this->formInputs[$this->generateColumnFormat($column)];
     }
 
     /**
@@ -175,7 +177,10 @@ trait ModelFormTrait {
     }
 
     public function getAttributeColumn($attribute) {
-        $tableSchema = $this->getTableSchema();
+        $tableSchema = false;
+        if($this->hasMethod('getTableSchema')){
+            $tableSchema = $this->getTableSchema();
+        }
         if ($tableSchema === false || !isset($tableSchema->columns[$attribute])) {
             return null;
         }
