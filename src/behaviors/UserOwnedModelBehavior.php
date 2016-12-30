@@ -16,7 +16,7 @@ class UserOwnedModelBehavior extends Behavior {
         $ownerClass = $this->owner->className();
         return [
             $ownerClass::$EVENT_AFTER_GET_FORM_ATTRIBUTES => 'afterGetFormAttributes',
-            $ownerClass::EVENT_AFTER_CREATE_VALIDATORS => 'afterCreateValidators',
+            $ownerClass::$EVENT_AFTER_CREATE_VALIDATORS => 'afterCreateValidators',
         ];
     }
     
