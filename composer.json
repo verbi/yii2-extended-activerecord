@@ -11,7 +11,7 @@
 		}
 	],
         "require": {
-            "verbi/yii2-helpers": "*"
+            "verbi/yii2-helpers": ">=1.2.0"
         },
 	"support": {
 		"source": "https://github.com/verbi/yii2-extended-activerecord"
