@@ -11,6 +11,7 @@ use verbi\yii2Helpers\behaviors\base\Behavior;
  */
 class SearchableModelBehavior extends Behavior {
 
+    public $attributes = null;
     protected $fields = [
         'q' => [
             'label' => 'Search Term',
@@ -23,6 +24,15 @@ class SearchableModelBehavior extends Behavior {
     protected $values = [];
     protected $fieldSets = [];
 
+    
+    
+    public function getAttributesForSearch() {
+        if(isset($this->attribtues)) {
+            return $this->attributes;
+        }
+        return array_slice($this->owner->attributes(), 2);
+    }
+
     public function search($data, $formName = null) {
         $this->owner->load($data, $formName);
         $this->values = $data;
@@ -30,7 +40,7 @@ class SearchableModelBehavior extends Behavior {
         $query = $modelClass::find();
         foreach (array_keys($this->fields) as $name) {
             if (isset($this->values[$name])) {
-                $query->andWhere('MATCH (' . implode(',', array_slice($this->owner->attributes(), 2)) . ') AGAINST (:' . $name . ' IN NATURAL LANGUAGE MODE)', [':' . $name => $this->values[$name]]);
+                $query->andWhere('MATCH (' . implode(',', $this->owner->getAttributesForSearch() ). ') AGAINST (:' . $name . ' IN NATURAL LANGUAGE MODE)', [':' . $name => $this->values[$name]]);
             }
         }
         return $query;
