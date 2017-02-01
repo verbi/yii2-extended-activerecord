@@ -157,7 +157,23 @@ trait ActiveRecordTrait {
         return $event->hasReturnValue()?$event->getReturnValue():$validators;
     }
     
-    
+    public function hasValidator(String $name, String $attribute) {
+        if(isset(Validator::$builtInValidators[$name])) {
+            $builtInValidator = Validator::$builtInValidators[$name];
+            if(is_string($builtInValidator)){
+                $name = $builtInValidator;
+            }
+            elseif(is_array($builtInValidator) && isset($builtInValidator['type'])) {
+                $name = $builtInValidator['class'];
+            }
+        }
+        foreach($this->getActiveValidators($attribute) as $validator) {
+            if($validator instanceof $name) {
+                return true;
+            }
+        }
+        return false;
+    }
     
     
     

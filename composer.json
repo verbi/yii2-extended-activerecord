@@ -11,7 +11,8 @@
 		}
 	],
         "require": {
-            "verbi/yii2-helpers": ">=1.2.0"
+            "verbi/yii2-helpers": ">=1.2.0",
+            "2amigos/yii2-ckeditor-widget" : "*"
         },
 	"support": {
 		"source": "https://github.com/verbi/yii2-extended-activerecord"

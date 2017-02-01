@@ -6,6 +6,17 @@ use verbi\yii2Helpers\events\GeneralFunctionEvent;
 use yii\web\JsExpression;
 
 trait ModelFormTrait {
+    public static $builtInFormFields = [
+        'richText' => [
+            'type' => Form::INPUT_WIDGET,
+            'widgetClass' => '\dosamigos\ckeditor\CKEditor',
+        ]
+    ];
+    
+    public static $builtInFormFieldsValidatorMapping = [
+        'richText' => 'richText',
+    ];
+    
     public static $EVENT_BEFORE_GET_FORM_ATTRIBUTES = 'beforeGetFormAttributes';
     public static $EVENT_AFTER_GET_FORM_ATTRIBUTES = 'afterGetFormAttributes';
     public $attributeFormInputTypes = [];
@@ -86,6 +97,16 @@ trait ModelFormTrait {
     }
 
     public function generateActiveField($attribute) {
+        if($this->hasMethod('hasValidator')) {
+            foreach(static::$builtInFormFieldsValidatorMapping as $validator => $field) {
+                if($this->hasValidator($validator, $attribute)) {
+                    if(is_string($field) && isset(static::$builtInFormFields[$field])) {
+                        return static::$builtInFormFields[$field];
+                    }
+                    return $field;
+                }
+            }
+        }
         $column = $this->getAttributeColumn($attribute);
         if ($column && isset($this->formInputs[$this->generateColumnFormat($column)])) {
             return $this->formInputs[$this->generateColumnFormat($column)];
@@ -113,7 +134,7 @@ trait ModelFormTrait {
             if ($relation instanceof \yii\db\ActiveQueryInterface) {
                 $input = [
                     'type' => Form::INPUT_WIDGET,
-                    'widgetClass' => \xsonline\yii2Helpers\widgets\Select::classname(),
+                    'widgetClass' => \verbi\yii2Helpers\widgets\Select::classname(),
                     'options' => [
                         'options' => [
                             'multiple' => true,
