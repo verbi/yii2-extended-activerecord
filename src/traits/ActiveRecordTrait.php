@@ -141,7 +141,17 @@ trait ActiveRecordTrait {
         if (!$this->beforeCreateValidators()) {
             return [];
         }
-        $validators->exchangeArray((array) parent::createValidators());
+        foreach ($this->rules() as $rule) {
+            if ($rule instanceof Validator) {
+                $validators->append($rule);
+            } elseif (is_array($rule) && isset($rule[0], $rule[1])) { // attributes, validator type
+                $validator = Validator::createValidator($rule[1], $this, (array) $rule[0], array_slice($rule, 2));
+                $validators->append($validator);
+            } else {
+                $validators = parent::createValidators();
+            }
+        }
+        $validators->exchangeArray((array) $validators);
         return $this->afterCreateValidators($validators);
     }
     
@@ -175,17 +185,6 @@ trait ActiveRecordTrait {
         }
         return false;
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     
     

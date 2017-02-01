@@ -45,7 +45,8 @@ abstract class Validator extends \yii\validators\Validator {
         'unique' => 'yii\validators\UniqueValidator',
         'url' => 'yii\validators\UrlValidator',
         'ip' => 'yii\validators\IpValidator',
-        'each' => 'verbi\yii2ExtendedActiveRecord\validators\EachValidator',
+        'each' => 'yii\validators\EachValidator',
+        //'each' => 'verbi\yii2ExtendedActiveRecord\validators\EachValidator',
         'richText' => 'verbi\yii2ExtendedActiveRecord\validators\EachValidator',
         ];
 }
