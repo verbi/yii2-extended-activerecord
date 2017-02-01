@@ -9,6 +9,6 @@ use Yii;
  * @link https://github.com/verbi/Yii2-Helpers/
  * @license https://opensource.org/licenses/GPL-3.0
  */
-class EachValidator extends Validator {
+class EachValidator extends \yii\validators\EachValidator {
     
 }
