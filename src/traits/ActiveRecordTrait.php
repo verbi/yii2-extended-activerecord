@@ -5,6 +5,7 @@ use verbi\yii2Helpers\base\ArrayObject;
 use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
 use verbi\yii2ExtendedActiveRecord\base\ModelEvent;
+use verbi\yii2ExtendedActiveRecord\validators\Validator;
 use Yii;
 
 trait ActiveRecordTrait {
