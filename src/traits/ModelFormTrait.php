@@ -10,6 +10,24 @@ trait ModelFormTrait {
         'richText' => [
             'type' => Form::INPUT_WIDGET,
             'widgetClass' => '\dosamigos\ckeditor\CKEditor',
+            'options' => [
+                //'preset' => 'basic',
+                'preset' => 'custom',
+                
+                'clientOptions' => [
+                    'removeButtons' => 'Subscript,Superscript,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Image,others,Color,background',
+                    'toolbarGroups' => [
+                        ['name' => 'undo'],
+                        ['name' => 'basicstyles', 'groups' => ['basicstyles', 'cleanup']],
+                        //['name' => 'colors'],
+                        ['name' => 'links', 'groups' => ['links', 'insert']],
+                        //['name' => 'others', 'groups' => ['others', 'about']],
+                    ],
+                    'removePlugins' => 'elementspath',
+                    'resize_enabled' => false,
+                    'allowedContent' => 'u em strong s p ul li;a[!href]'
+                    ]
+                ],
         ]
     ];
     
