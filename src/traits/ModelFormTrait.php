@@ -19,6 +19,7 @@ trait ModelFormTrait {
                     'toolbarGroups' => [
                         ['name' => 'undo'],
                         ['name' => 'basicstyles', 'groups' => ['basicstyles', 'cleanup']],
+                        ['name' => 'list', ],
                         //['name' => 'colors'],
                         ['name' => 'links', 'groups' => ['links', 'insert']],
                         //['name' => 'others', 'groups' => ['others', 'about']],
@@ -26,8 +27,8 @@ trait ModelFormTrait {
                     'removePlugins' => 'elementspath',
                     'resize_enabled' => false,
                     'allowedContent' => 'u em strong s p ul li;a[!href]'
-                    ]
-                ],
+                ]
+            ],
         ]
     ];
     
