@@ -11,7 +11,7 @@ class RichTextValidator extends Validator
     /**
      * @var Array the allowed tags 
      */
-    public $allowedTags = ['strong', 'b', 'i', 'em', 'a', 'u','ul', 'li', 'p','s'];
+    public $allowedTags = ['strong', 'b', 'i', 'em', 'a' => ['href'], 'u','ul', 'li', 'p','s'];
     
     /**
      * @var bool Whether to purify the input.
@@ -23,12 +23,37 @@ class RichTextValidator extends Validator
      */
     public function validateAttribute($model, $attribute)
     {
-        if($this->allowedTags) {
-            $model->$attribute = strip_tags($model->$attribute,$this->allowedTags && sizeof($this->allowedTags)?'<'.implode('><',$this->allowedTags).'>':'');
+        if(is_array($this->allowedTags)) {
+             $tags = [];
+                    foreach($this->allowedTags as $key => $value) {
+                        $tag = $value;
+                        if(is_array($value)) {
+                            $tag=$key;
+                        }
+                        $tags[] = $tag;
+                    }
+            $model->$attribute = strip_tags($model->$attribute,$tags && sizeof($tags)?'<'.implode('><',$tags).'>':'');
         }
         
         if($this->purify) {
-            $model->$attribute = HtmlPurifier::process($model->$attribute);
+            $allowedTags = $this->allowedTags;
+            $model->$attribute = HtmlPurifier::process($model->$attribute, function($config) use ($allowedTags) {
+                
+                if(is_array($allowedTags) && sizeof($allowedTags)) {
+                    $tags = [];
+                    foreach($allowedTags as $key => $value) {
+                        $tag = $value;
+                        if(is_array($value)) {
+                            $tag=$key;
+                            if(sizeof($value)) {
+                                $tag .= '['.implode(',',$value).']';
+                            }
+                        }
+                        $tags[] = $tag;
+                    }
+                    $config->set('HTML.Allowed', implode(',', $tags));
+                }
+            });
         }
     }
 }
