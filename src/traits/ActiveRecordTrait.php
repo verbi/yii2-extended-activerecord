@@ -6,7 +6,6 @@ use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
 use verbi\yii2ExtendedActiveRecord\base\ModelEvent;
 use verbi\yii2ExtendedActiveRecord\validators\Validator;
-use Yii;
 
 trait ActiveRecordTrait {
     use \verbi\yii2Helpers\traits\ComponentTrait;
@@ -65,15 +64,6 @@ trait ActiveRecordTrait {
         return false;
     }
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
     /**
      * @inheritdoc
      */
@@ -104,7 +94,7 @@ trait ActiveRecordTrait {
      * @inheritdoc
      */
     public function isAttributeSafe($attribute) {
-        if ($this->owner->isPrimaryKey([$attribute]))
+        if ($this->isPrimaryKey([$attribute]))
             return false;
         return parent::isAttributeSafe($attribute);
     }
