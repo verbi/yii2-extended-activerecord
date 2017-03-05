@@ -56,7 +56,7 @@ class UserOwnedModelBehavior extends Behavior {
             }
         }
     }
-
+    
     public function addAuthRules($controller) {
         $auth = Yii::$app->authManager;
 
@@ -70,8 +70,7 @@ class UserOwnedModelBehavior extends Behavior {
                 $permission->description = 'Update own '.$this->owner->className();
                 $permission->ruleName = $rule->name;
                 $auth->add($permission);
-                
-//                $auth->addChild($permission, $updatePost);
+                $auth->addChild($permission, $updatePost);
             }
         }
     }
