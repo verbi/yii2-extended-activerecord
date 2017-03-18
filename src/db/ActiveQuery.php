@@ -32,7 +32,26 @@ class ActiveQuery extends \yii\db\ActiveQuery  {
      */
     public function all($db = null)
     {
-        $rows = $this->andWhere($this->getAccessRule())->createCommand($db)->queryAll();
-        return $this->populate($rows);
+        if ($db === null) {
+            $db = \Yii::$app->getDb();
+        }
+        return $db->cache(function ($db) {
+            $rows = $this->andWhere($this->getAccessRule())->createCommand($db)->queryAll();
+            return $this->populate($rows);
+        });
+    }
+    
+    /**
+     * @inheritdoc
+     * @param type $db
+     * @return type
+     */
+    public function one($db = null) {
+        if ($db === null) {
+            $db = \Yii::$app->getDb();
+        }
+        return $db->cache(function ($db) {
+            return parent::one($db);
+        });
     }
 }
