@@ -46,12 +46,12 @@ class ActiveQuery extends \yii\db\ActiveQuery  {
      * @param type $db
      * @return type
      */
-    public function one($db = null) {
-        if ($db === null) {
-            $db = \Yii::$app->getDb();
-        }
-        return $db->cache(function ($db) {
-            return parent::one($db);
-        });
-    }
+//    public function one($db = null) {
+//        if ($db === null) {
+//            $db = \Yii::$app->getDb();
+//        }
+//        return $db->cache(function ($db) {
+//            return parent::one($db);
+//        });
+//    }
 }
