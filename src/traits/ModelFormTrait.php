@@ -9,7 +9,7 @@ trait ModelFormTrait {
     public static $builtInFormFields = [
         'richText' => [
             'type' => Form::INPUT_WIDGET,
-            'widgetClass' => '\dosamigos\ckeditor\CKEditor',
+            'widgetClass' => '\verbi\yii2Helpers\widgets\CKEditor',
             'options' => [
                 //'preset' => 'basic',
                 'preset' => 'custom',
