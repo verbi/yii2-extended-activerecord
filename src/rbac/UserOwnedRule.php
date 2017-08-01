@@ -19,7 +19,6 @@ class UserOwnedRule extends Rule
      */
     public function execute($user, $item, $params)
     {
-        die('ok');
-        return isset($params['model']) ? $params['model']->owner_id == $user : false;
+        return isset($params['model']) && $params['model']->hasMethod('isOwner') ? $params['model']->isOwner($user):false;
     }
 }

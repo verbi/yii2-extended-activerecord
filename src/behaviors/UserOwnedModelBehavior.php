@@ -15,7 +15,8 @@ use yii\validators\Validator;
  * @license https://opensource.org/licenses/GPL-3.0
  */
 class UserOwnedModelBehavior extends Behavior {
-
+    public $attributeName = 'owner_id';
+    
     public function events() {
         $ownerClass = $this->owner->className();
         return [
@@ -25,9 +26,9 @@ class UserOwnedModelBehavior extends Behavior {
     }
 
     public function afterGetFormAttributes(GeneralFunctionEvent $event) {
-        if ($this->owner && isset($event->params['attributes']) && array_key_exists('owner_id', $event->params['attributes'])) {
+        if ($this->owner && isset($event->params['attributes']) && array_key_exists($this->attributeName, $event->params['attributes'])) {
             $params = $event->params;
-            unset($params['attributes']['owner_id']);
+            unset($params['attributes'][$this->attributeName]);
             $event->setparams($params);
             $event->setReturnValue($params['attributes']);
         }
@@ -38,15 +39,15 @@ class UserOwnedModelBehavior extends Behavior {
             if (
                     !\Yii::$app->user->isGuest && isset($event->params['validators']) && $event->params['validators'] instanceof ArrayObject
             ) {
-                if ($this->owner->hasAttribute('owner_id')) {
+                if ($this->owner->hasAttribute($this->attributeName)) {
                     foreach ($event->params['validators'] as $validator) {
                         if (
-                                $validator instanceof DefaultValueValidator && in_array('owner_id', $validator->attributes)) {
+                                $validator instanceof DefaultValueValidator && in_array($this->attributeName, $validator->attributes)) {
                             return;
                         }
                     }
                     $validator = Validator::createValidator(
-                                    'default', $this->owner, ['owner_id'], ['value' => \Yii::$app->user->identity->getId()]
+                                    'default', $this->owner, [$this->attributeName], ['value' => \Yii::$app->user->identity->getId()]
                     );
                     $validators = $event->params['validators'];
                     $validators->prepend($validator);
@@ -59,19 +60,24 @@ class UserOwnedModelBehavior extends Behavior {
     
     public function addAuthRules($controller) {
         $auth = Yii::$app->authManager;
-
+        $owner = $auth->createRole('owner');
         if($auth) {
             // add the rule
             $rule = new \verbi\yii2ExtendedActiveRecord\rbac\UserOwnedRule;
-            $auth->add($rule);
+            $owner->ruleName = $rule->name;
+            $auth->add($owner);
             // add the "updateOwnPost" permission and associate the rule with it.
             foreach(array_keys($controller->getActions()) as $actionId){
                 $permission = $auth->createPermission($this->owner->className().'-'.$actionId.'-Own');
-                $permission->description = 'Update own '.$this->owner->className();
+                $permission->description = $actionId . ' own ' . $this->owner->className();
                 $permission->ruleName = $rule->name;
                 $auth->add($permission);
 //                $auth->addChild($permission, $updatePost);
             }
         }
+    }
+    
+    public function isOwner($user) {
+        return $this->owner->{$this->attributeName}==$user;
     }
 }
