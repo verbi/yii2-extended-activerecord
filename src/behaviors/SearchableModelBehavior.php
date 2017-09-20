@@ -27,7 +27,7 @@ class SearchableModelBehavior extends Behavior {
     
     
     public function getAttributesForSearch() {
-        if(isset($this->attribtues)) {
+        if(isset($this->attributes)) {
             return $this->attributes;
         }
         return array_slice($this->owner->attributes(), 2);

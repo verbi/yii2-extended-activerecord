@@ -53,7 +53,6 @@ Trait UserOwnedModelTrait {
     
     public function addAuthRules($controller) {
         $auth = Yii::$app->authManager;
-
         if($auth) {
             // add the rule
             $rule = new \verbi\yii2ExtendedActiveRecord\rbac\UserOwnedRule;

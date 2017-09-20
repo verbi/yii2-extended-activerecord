@@ -8,9 +8,9 @@ use yii\base\Model;
 /**
  * Checks if owner_id matches user passed via params
  */
-class UserOwnedRule extends Rule
+class ModelBasedRule extends Rule
 {
-    public $name = 'isOwner';
+    public $name = 'modelBased';
 
     /**
      * @param string|int $user the user ID.
@@ -20,6 +20,10 @@ class UserOwnedRule extends Rule
      */
     public function execute($user, $item, $params)
     {
-        return isset($params['model']) && $params['model'] instanceof Model && $params['model']->hasMethod('isOwner') ? $params['model']->isOwner($user):false;
+        if(isset($params['model']) && $params['model'] instanceof Model) {
+            return true;
+        }
+        return false;
+        return isset($params['model']) && $params['model']->hasMethod('isOwner') ? $params['model']->isOwner($user):false;
     }
 }
