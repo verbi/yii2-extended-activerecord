@@ -20,6 +20,7 @@ class ModelBasedRule extends Rule
      */
     public function execute($user, $item, $params)
     {
+        return true;
         if(isset($params['model']) && $params['model'] instanceof Model) {
             return true;
         }

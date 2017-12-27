@@ -6,7 +6,6 @@ use Yii;
 use verbi\yii2Helpers\behaviors\base\Behavior;
 use verbi\yii2Helpers\events\GeneralFunctionEvent;
 use verbi\yii2Helpers\base\ArrayObject;
-use verbi\yii2Helpers\behaviors\base\filters\AccessRule;
 use yii\validators\DefaultValueValidator;
 use yii\validators\Validator;
 
@@ -16,6 +15,19 @@ use yii\validators\Validator;
  * @license https://opensource.org/licenses/GPL-3.0
  */
 class UserOwnedModelBehavior extends Behavior {
+    use \verbi\yii2ExtendedAccessControl\traits\PermissionCreatorTrait;
+//    use \verbi\yii2ExtendedAccessControl\traits\PermissionCreatorTrait {
+//        getPermission as protected _permissionCreatorTraitGetPermission;
+//    }
+//    
+//    public function getPermission($accessType) {
+//        die($accessType);
+//    }
+    
+    public $rule = [
+        'class' => 'verbi\yii2ExtendedActiveRecord\rbac\UserOwnedRule',
+    ];
+    
     public $attributeName = 'owner_id';
     
     public function events() {

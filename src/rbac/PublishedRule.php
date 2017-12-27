@@ -4,14 +4,13 @@ namespace verbi\yii2ExtendedActiveRecord\rbac;
 
 use yii\rbac\Rule;
 use yii\base\Model;
-use verbi\yii2ExtendedActiveRecord\behaviors\UserOwnedModelBehavior;
 
 /**
  * Checks if owner_id matches user passed via params
  */
-class UserOwnedRule extends Rule
+class PublishedRule extends Rule
 {
-    public $name = 'isOwner';
+    public $name = 'isPublished';
 
     /**
      * @param string|int $user the user ID.
@@ -21,6 +20,6 @@ class UserOwnedRule extends Rule
      */
     public function execute($user, $item, $params)
     {
-        return isset($params['model']) && $params['model'] instanceof Model && $params['model']->hasBehaviorByClass(UserOwnedModelBehavior::className()) ? $params['model']->isOwner($user):false;
+        return isset($params['model']) && $params['model'] instanceof Model && $params['model']->hasMethod('isPublished') ? $params['model']->isPublished():false;
     }
 }

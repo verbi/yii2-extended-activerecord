@@ -5,7 +5,7 @@ use Yii;
 use verbi\yii2Helpers\behaviors\base\Behavior;
 use verbi\yii2Helpers\events\GeneralFunctionEvent;
 use verbi\yii2Helpers\base\ArrayObject;
-use verbi\yii2Helpers\behaviors\base\AccessControl;
+use verbi\yii2ExtendedAccessControl\filters\AccessControl;
 use yii\validators\DefaultValueValidator;
 use yii\validators\Validator;
 
@@ -53,7 +53,7 @@ Trait UserOwnedModelTrait {
     
     public function addAuthRules($controller) {
         $auth = Yii::$app->authManager;
-        if($auth) {
+        if($auth) {die();
             // add the rule
             $rule = new \verbi\yii2ExtendedActiveRecord\rbac\UserOwnedRule;
             $auth->add($rule);

@@ -2,14 +2,9 @@
 
 namespace verbi\yii2ExtendedActiveRecord\behaviors;
 
-use Yii;
 use verbi\yii2Helpers\behaviors\base\Behavior;
-use verbi\yii2Helpers\behaviors\base\AccessControl;
 use verbi\yii2Helpers\events\GeneralFunctionEvent;
 use verbi\yii2Helpers\behaviors\base\filters\AccessRule;
-use verbi\yii2Helpers\base\ArrayObject;
-use yii\validators\DefaultValueValidator;
-use yii\validators\Validator;
 use yii\base\Action;
 use yii\web\User;
 use yii\web\Request;
@@ -23,6 +18,10 @@ use yii\web\Request;
 class AccessRuleModelBehavior extends Behavior {
     public static $EVENT_BEFORE_CHECK_MODEL_ACCESS = 'eventBeforeCheckModelAccess';
     public static $EVENT_AFTER_CHECK_MODEL_ACCESS = 'eventAfterCheckModelAccess';
+    
+    public $rule = [
+        'class' => 'verbi\yii2ExtendedActiveRecord\rbac\ModelBasedRule',
+    ];
     
     public function events() {
         return array_merge(parent::events(),[
