@@ -10,9 +10,11 @@ use Yii;
  * @license https://opensource.org/licenses/GPL-3.0
  */
 class ActiveRecord extends \yii\db\ActiveRecord {
+
     use \verbi\yii2ExtendedActiveRecord\traits\ActiveRecordTrait;
-    use \verbi\yii2ExtendedActiveRecord\traits\ModelFormTrait;
-    
+
+use \verbi\yii2ExtendedActiveRecord\traits\ModelFormTrait;
+
     protected $_activeQueryClass = '\\verbi\\yii2ExtendedActiveRecord\\db\\ActiveQuery';
     protected $_queryClass = '\\verbi\\yii2ExtendedActiveRecord\\db\\Query';
 
@@ -20,18 +22,17 @@ class ActiveRecord extends \yii\db\ActiveRecord {
      * @inheritdoc
      * @return ActiveQuery the newly created [[ActiveQuery]] instance.
      */
-    public static function find()
-    {
+    public static function find() {
         return Yii::createObject(ActiveQuery::className(), [get_called_class()]);
     }
-    
+
     /**
      * @inheritdoc
      */
     public function findUnauthorized() {
         return parent::find();
     }
-    
+
     public function getAccessQuery($identity) {
         $query = (new Query())
                 ->select('id')
@@ -39,7 +40,7 @@ class ActiveRecord extends \yii\db\ActiveRecord {
                 ->where($this->getAccessRule($identity));
         return $query;
     }
-    
+
     public function saveAll($models, $runValidation = true, $attributeNames = null) {
         $db = static::getDb();
         $sql = '';
@@ -111,10 +112,9 @@ class ActiveRecord extends \yii\db\ActiveRecord {
     public function link($name, $model, $extraColumns = []) {
         try {
             return parent::link($name, $model, $extraColumns);
-        }
-        catch(\yii\db\IntegrityException $e) {
+        } catch (\yii\db\IntegrityException $e) {
             $relation = $this->getRelation($name);
-            if($relation->via !== null /*&& $this->isLinked($name,$model)*/) {
+            if ($relation->via !== null /* && $this->isLinked($name,$model) */) {
                 if (is_array($relation->via)) {
                     /* @var $viaRelation ActiveQuery */
                     list($viaName, $viaRelation) = $relation->via;
@@ -144,13 +144,13 @@ class ActiveRecord extends \yii\db\ActiveRecord {
                 } else {
                     $db = static::getDb();
                     $primaryKey = $db->getSchema()
-                            ->getTableSchema($viaTable)
+                                    ->getTableSchema($viaTable)
                             ->primaryKey;
                     $primaryKeyValues = [];
                     array_walk($primaryKey, function(&$var)
                             use (&$primaryKeyValues, &$columns) {
                         $primaryKeyValues[$var] = $columns[$var];
-                            });
+                    });
                     /* @var $viaTable string */
                     $db->createCommand()
                             ->update($viaTable, $columns, $primaryKeyValues)
@@ -161,4 +161,5 @@ class ActiveRecord extends \yii\db\ActiveRecord {
             throw $e;
         }
     }
+
 }

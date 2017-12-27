@@ -1,4 +1,5 @@
 <?php
+
 namespace verbi\yii2ExtendedActiveRecord\base;
 
 /**

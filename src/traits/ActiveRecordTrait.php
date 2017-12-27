@@ -1,5 +1,7 @@
 <?php
+
 namespace verbi\yii2ExtendedActiveRecord\traits;
+
 use verbi\yii2Helpers\events\GeneralFunctionEvent;
 use verbi\yii2Helpers\base\ArrayObject;
 use yii\helpers\Inflector;
@@ -8,20 +10,21 @@ use verbi\yii2ExtendedActiveRecord\base\ModelEvent;
 use verbi\yii2ExtendedActiveRecord\validators\Validator;
 
 trait ActiveRecordTrait {
+
     use \verbi\yii2Helpers\traits\ComponentTrait;
-    
+
     public static $EVENT_BEFORE_SETATTRIBUTES = 'beforeSetAttributes';
     public static $EVENT_AFTER_SETATTRIBUTES = 'afterSetAttributes';
     public static $EVENT_BEFORE_RULES = 'beforeRules';
     public static $EVENT_AFTER_RULES = 'afterRules';
     public static $EVENT_BEFORE_CREATE_VALIDATORS = 'beforeCreateValidators';
     public static $EVENT_AFTER_CREATE_VALIDATORS = 'afterCreateValidators';
-    
+
     /**
      * @var array attribute values indexed by attribute names
      */
     protected $_attributes = [];
-    
+
     /**
      * @var array|null old attribute values indexed by attribute names.
      * This is `null` if the record [[isNewRecord|is new]].
@@ -52,7 +55,7 @@ trait ActiveRecordTrait {
         $this->trigger(self::$EVENT_AFTER_RULES, $event);
         return $event->isValid;
     }
-    
+
     public function getAccessRule($identity = null) {
         return array();
     }
@@ -63,7 +66,7 @@ trait ActiveRecordTrait {
         }
         return false;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -89,7 +92,7 @@ trait ActiveRecordTrait {
         $this->trigger(self::$EVENT_AFTER_SETATTRIBUTES, $event);
         return $event->isValid;
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -124,9 +127,8 @@ trait ActiveRecordTrait {
         }
         return $user;
     }
-    
-    public function createValidators()
-    {
+
+    public function createValidators() {
         $validators = new ArrayObject;
         if (!$this->beforeCreateValidators()) {
             return [];
@@ -144,7 +146,7 @@ trait ActiveRecordTrait {
         $validators->exchangeArray((array) $validators);
         return $this->afterCreateValidators($validators);
     }
-    
+
     protected function beforeCreateValidators() {
         $event = new GeneralFunctionEvent;
         $this->trigger(self::$EVENT_BEFORE_CREATE_VALIDATORS, $event);
@@ -155,35 +157,32 @@ trait ActiveRecordTrait {
         $event = new GeneralFunctionEvent;
         $event->params = ['validators' => &$validators,];
         $this->trigger(self::$EVENT_AFTER_CREATE_VALIDATORS, $event);
-        return $event->hasReturnValue()?$event->getReturnValue():$validators;
+        return $event->hasReturnValue() ? $event->getReturnValue() : $validators;
     }
-    
+
     public function hasValidator(String $name, String $attribute) {
-        if(isset(Validator::$builtInValidators[$name])) {
+        if (isset(Validator::$builtInValidators[$name])) {
             $builtInValidator = Validator::$builtInValidators[$name];
-            if(is_string($builtInValidator)){
+            if (is_string($builtInValidator)) {
                 $name = $builtInValidator;
-            }
-            elseif(is_array($builtInValidator) && isset($builtInValidator['type'])) {
+            } elseif (is_array($builtInValidator) && isset($builtInValidator['type'])) {
                 $name = $builtInValidator['class'];
             }
         }
-        foreach($this->getActiveValidators($attribute) as $validator) {
-            if($validator instanceof $name) {
+        foreach ($this->getActiveValidators($attribute) as $validator) {
+            if ($validator instanceof $name) {
                 return true;
             }
         }
         return false;
     }
-    
-    
-    
+
     protected function arrayFilterUniqueActiveRecord($array) {
         return array_filter($array, function( $value ) {
             static $idList = array();
-            if($value instanceof \yii\db\ActiveRecordInterface && !$value->getIsNewRecord()) {
+            if ($value instanceof \yii\db\ActiveRecordInterface && !$value->getIsNewRecord()) {
                 $pk = $value->getPrimarykey();
-                if(in_array($pk, $idList)) {
+                if (in_array($pk, $idList)) {
                     return false;
                 }
                 $idList[] = $pk;
@@ -191,4 +190,5 @@ trait ActiveRecordTrait {
             return true;
         });
     }
+
 }

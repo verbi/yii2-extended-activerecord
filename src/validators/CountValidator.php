@@ -1,6 +1,7 @@
 <?php
 
 namespace verbi\yii2ExtendedActiveRecord\validators;
+
 use Yii;
 
 /*
@@ -15,7 +16,7 @@ class CountValidator extends Validator {
      * @var int The minimum number of elements in the collection
      */
     public $min = 0;
-    
+
     /**
      * @var int The maximum number of elements in the collection
      */

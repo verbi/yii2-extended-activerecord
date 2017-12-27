@@ -8,26 +8,26 @@ namespace verbi\yii2ExtendedActiveRecord\elasticsearch;
  * @license https://opensource.org/licenses/GPL-3.0
  */
 class ActiveRecord extends \yii\elasticsearch\ActiveRecord {
+
     use \verbi\yii2ExtendedActiveRecord\traits\ActiveRecordTrait;
-    use \verbi\yii2ExtendedActiveRecord\traits\ModelFormTrait;
-    
-    
+
+use \verbi\yii2ExtendedActiveRecord\traits\ModelFormTrait;
+
     /**
      * @inheritdoc
      * @return ActiveQuery the newly created [[ActiveQuery]] instance.
      */
-    public static function find()
-    {
+    public static function find() {
         return Yii::createObject(ActiveQuery::className(), [get_called_class()]);
     }
-    
+
     /**
      * @inheritdoc
      */
     public function findUnauthorized() {
         return parent::find();
     }
-    
+
     public function getAccessQuery($identity) {
         $query = (new Query())
                 ->select('id')
@@ -35,4 +35,5 @@ class ActiveRecord extends \yii\elasticsearch\ActiveRecord {
                 ->where($this->getAccessRule($identity));
         return $query;
     }
+
 }

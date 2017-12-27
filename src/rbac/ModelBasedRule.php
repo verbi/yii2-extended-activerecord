@@ -8,8 +8,8 @@ use yii\base\Model;
 /**
  * Checks if owner_id matches user passed via params
  */
-class ModelBasedRule extends Rule
-{
+class ModelBasedRule extends Rule {
+
     public $name = 'modelBased';
 
     /**
@@ -18,13 +18,11 @@ class ModelBasedRule extends Rule
      * @param array $params parameters passed to ManagerInterface::checkAccess().
      * @return bool a value indicating whether the rule permits the role or permission it is associated with.
      */
-    public function execute($user, $item, $params)
-    {
-        return true;
-        if(isset($params['model']) && $params['model'] instanceof Model) {
+    public function execute($user, $item, $params) {
+        if (isset($params['model']) && $params['model'] instanceof Model) {
             return true;
         }
         return false;
-        return isset($params['model']) && $params['model']->hasMethod('isOwner') ? $params['model']->isOwner($user):false;
     }
+
 }

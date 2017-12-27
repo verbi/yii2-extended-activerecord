@@ -1,5 +1,7 @@
 <?php
+
 namespace verbi\yii2ExtendedActiveRecord\traits;
+
 use yii\base\UnknownPropertyException;
 use yii\base\UnknownMethodException;
 use yii\db\Exception as DbException;
@@ -47,6 +49,7 @@ use Exception;
  * @license https://opensource.org/licenses/GPL-3.0
  */
 trait ActiveRecordInheritanceTrait {
+
     /**
      * @inheritdoc
      */
@@ -54,12 +57,11 @@ trait ActiveRecordInheritanceTrait {
         try {
             return parent::__get($name);
         } catch (UnknownPropertyException $e) {
-            foreach($this->getBehaviors() as $behavior) {
-                if($behavior->hasMethod('_inheritedGet')) {
+            foreach ($this->getBehaviors() as $behavior) {
+                if ($behavior->hasMethod('_inheritedGet')) {
                     try {
                         return $behavior->_inheritedGet($name);
-                    }
-                    catch(Exception $exception) {
+                    } catch (Exception $exception) {
                         
                     }
                 }
@@ -67,45 +69,44 @@ trait ActiveRecordInheritanceTrait {
             throw $e;
         }
     }
-    
+
     /**
      * @inheritdoc
      */
     public function __set($name, $value) {
         $result = false;
         try {
-            foreach($this->getBehaviors() as $behavior) {
-            if($behavior->hasMethod('_inheritedSet')) {
-                try {
-                    $behavior->_inheritedSet($name, $value);
-                    $result = true;
-                }
-                catch(Exception $exception) {
-
+            foreach ($this->getBehaviors() as $behavior) {
+                if ($behavior->hasMethod('_inheritedSet')) {
+                    try {
+                        $behavior->_inheritedSet($name, $value);
+                        $result = true;
+                    } catch (Exception $exception) {
+                        
+                    }
                 }
             }
-        }
-            
+
             parent::__set($name, $value);
         } catch (UnknownPropertyException $e) {
-            if(!$result) {
+            if (!$result) {
                 throw $e;
             }
         }
     }
-    
+
     /**
      * @inheritdoc
      */
     public function setAttributes($values, $safeOnly = true) {
-        foreach($this->getBehaviors() as $behavior) {
-            if($behavior->hasMethod('_setInheritedAttributes')) {
+        foreach ($this->getBehaviors() as $behavior) {
+            if ($behavior->hasMethod('_setInheritedAttributes')) {
                 $behavior->_setInheritedAttributes($values, $safeOnly);
             }
         }
         parent::setAttributes($values, $safeOnly);
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -115,17 +116,18 @@ trait ActiveRecordInheritanceTrait {
                 parent::__unset($name);
             }
         } catch (UnknownPropertyException $e) {
-            foreach($this->getBehaviors() as $behavior) {
-                if($behavior->hasMethod('_inheritedUnset')) {
+            foreach ($this->getBehaviors() as $behavior) {
+                if ($behavior->hasMethod('_inheritedUnset')) {
                     try {
                         return $behavior->_inheritedUnset($name);
+                    } catch (UnknownMethodException $exception) {
+                        
                     }
-                    catch (UnknownMethodException $exception) {}
                 }
             }
         }
     }
-    
+
     /**
      * @inheritdoc
      */
@@ -133,31 +135,32 @@ trait ActiveRecordInheritanceTrait {
         try {
             return parent::__call($name, $params);
         } catch (UnknownMethodException $e) {
-            foreach($this->getBehaviors() as $behavior) {
-                if($behavior->hasMethod('_inheritedCall')) {
+            foreach ($this->getBehaviors() as $behavior) {
+                if ($behavior->hasMethod('_inheritedCall')) {
                     try {
                         return $behavior->_inheritedCall($name, $params);
+                    } catch (UnknownMethodException $exception) {
+                        
                     }
-                    catch (UnknownMethodException $exception) {}
                 }
             }
             throw $e;
         }
     }
-    
+
     /**
      * @inheritdoc
      */
     public function attributeLabels() {
         $attributeLabels = parent::attributeLabels();
-        foreach($this->getBehaviors() as $behavior) {
-            if($behavior->hasMethod('_getInheritedAttributeLabels')) {
+        foreach ($this->getBehaviors() as $behavior) {
+            if ($behavior->hasMethod('_getInheritedAttributeLabels')) {
                 $attributeLabels = array_merge($behavior->_getInheritedAttributeLabels(), $attributeLabels);
             }
         }
         return $attributeLabels;
     }
-    
+
     /**
      * Returns attribute values.
      * 
@@ -168,19 +171,19 @@ trait ActiveRecordInheritanceTrait {
      * @return array attribute values (name => value).
      */
     public function getAttributes($names = null, $except = array()) {
-        
-        
+
+
         if ($names === null) {
             $names = $this->attributes();
-            foreach($this->getBehaviors() as $behavior) {
-                if($behavior->hasMethod('_inheritedAttributes')) {
+            foreach ($this->getBehaviors() as $behavior) {
+                if ($behavior->hasMethod('_inheritedAttributes')) {
                     $names = array_merge($behavior->_inheritedAttributes(), $names);
                 }
             }
         }
         return parent::getAttributes($names, $except);
     }
-    
+
     /**
      * Saves the parent model and the current model.
      * 
@@ -194,20 +197,20 @@ trait ActiveRecordInheritanceTrait {
         }
         $trans = static::getDb()->beginTransaction();
         try {
-             foreach($this->getBehaviors() as $behavior) {
-                if($behavior->hasMethod('_inheritedSave')) {
+            foreach ($this->getBehaviors() as $behavior) {
+                if ($behavior->hasMethod('_inheritedSave')) {
                     if ($behavior->_inheritedSave(false, $attributeNames) === false) {
                         throw new DbException('Unable to save parent model');
                     }
-                    if($behavior->hasMethod('_inheritedPrimaryKey')) {
+                    if ($behavior->hasMethod('_inheritedPrimaryKey')) {
                         $this->setAttributes($behavior->_inheritedPrimaryKey());
                     }
                     if (parent::save(false, $attributeNames) === false) {
                         throw new DbException('Unable to save current model');
                     }
                 }
-             }
-            
+            }
+
             $trans->commit();
             return true;
         } catch (Exception $e) {
@@ -215,7 +218,7 @@ trait ActiveRecordInheritanceTrait {
             throw $e;
         }
     }
-    
+
     /**
      * Deletes the table row corresponding to this active record.
      *
@@ -238,16 +241,16 @@ trait ActiveRecordInheritanceTrait {
     public function delete() {
         $trans = static::getDb()->beginTransaction();
         try {
-            $result = parent::delete() ;
+            $result = parent::delete();
             if ($result === false) {
                 throw new DbException('Unable to delete current model');
             }
-            foreach($this->getBehaviors() as $behavior) {
-               if($behavior->hasMethod('_inheritedDelete')) {
-                   if($behavior->_inheritedDelete() === false) {
-                       throw new DbException('Unable to delete parent model');
-                   }
-               }
+            foreach ($this->getBehaviors() as $behavior) {
+                if ($behavior->hasMethod('_inheritedDelete')) {
+                    if ($behavior->_inheritedDelete() === false) {
+                        throw new DbException('Unable to delete parent model');
+                    }
+                }
             }
             $trans->commit();
             return $result;
@@ -256,7 +259,7 @@ trait ActiveRecordInheritanceTrait {
             throw $e;
         }
     }
-    
+
     /**
      * Validates the parent and the current model.
      * 
@@ -267,25 +270,25 @@ trait ActiveRecordInheritanceTrait {
         $r = parent::validate($attributeNames === null ?
                                 array_diff($this->attributes(), $this->getInheritedPrimaryKeys()) :
                                 $attributeNames, $clearErrors);
-        foreach($this->getBehaviors() as $behavior) {
-            if($behavior->hasMethod('_inheritedValidate')) {
+        foreach ($this->getBehaviors() as $behavior) {
+            if ($behavior->hasMethod('_inheritedValidate')) {
                 $r = $behavior->_inheritedValidate($attributeNames, $clearErrors) && $r;
             }
         }
-        
+
         return $r;
     }
-    
+
     public function getInheritedPrimaryKeys() {
         $pk = [];
-        foreach($this->getBehaviors() as $behavior) {
-            if($behavior->hasMethod('_inheritedPrimaryKey')) {
+        foreach ($this->getBehaviors() as $behavior) {
+            if ($behavior->hasMethod('_inheritedPrimaryKey')) {
                 $pk = array_merge(array_keys($behavior->_inheritedPrimaryKey()), $pk);
             }
         }
         return $pk;
     }
-    
+
     /**
      * Returns a value indicating whether there is any validation error.
      * 
@@ -294,10 +297,10 @@ trait ActiveRecordInheritanceTrait {
      */
     public function hasErrors($attribute = null) {
         $hasErrors = parent::hasErrors($attribute);
-        if(!$hasErrors) {
-            foreach($this->getBehaviors() as $behavior) {
-                if($behavior->hasMethod('_inheritedHasErrors')) {
-                    if($behavior->_inheritedHasErrors($attribute)) {
+        if (!$hasErrors) {
+            foreach ($this->getBehaviors() as $behavior) {
+                if ($behavior->hasMethod('_inheritedHasErrors')) {
+                    if ($behavior->_inheritedHasErrors($attribute)) {
                         return true;
                     }
                 }
@@ -305,7 +308,7 @@ trait ActiveRecordInheritanceTrait {
         }
         return $hasErrors;
     }
-    
+
     /**
      * Returns the errors for all attribute or a single attribute.
      * 
@@ -332,14 +335,14 @@ trait ActiveRecordInheritanceTrait {
      */
     public function getErrors($attribute = null) {
         $errors = parent::getErrors($attribute);
-        foreach($this->getBehaviors() as $behavior) {
-            if($behavior->hasMethod('_inheritedGetErrors')) {
+        foreach ($this->getBehaviors() as $behavior) {
+            if ($behavior->hasMethod('_inheritedGetErrors')) {
                 $errors = array_merge($behavior->_inheritedGetErrors($attribute), $errors);
             }
         }
         return $errors;
     }
-    
+
     /**
      * Returns the first error of every attribute in the model.
      * 
@@ -362,7 +365,7 @@ trait ActiveRecordInheritanceTrait {
             return $errors;
         }
     }
-    
+
     /**
      * Returns the first error of the specified attribute.
      * 
@@ -375,19 +378,20 @@ trait ActiveRecordInheritanceTrait {
         $errors = $this->getErrors($attribute);
         return count($errors) ? $errors[0] : null;
     }
-    
+
     /**
      * @inheritdoc
      */
     public function refresh() {
         $r = parent::refresh();
-        foreach($this->getBehaviors() as $behavior) {
-            if($behavior->hasMethod('_inheritedRefresh')) {
-                if(!$behavior->_inheritedRefresh()) {
+        foreach ($this->getBehaviors() as $behavior) {
+            if ($behavior->hasMethod('_inheritedRefresh')) {
+                if (!$behavior->_inheritedRefresh()) {
                     $r = false;
                 }
             }
         }
         return $r;
     }
+
 }

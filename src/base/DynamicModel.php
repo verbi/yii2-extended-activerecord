@@ -1,4 +1,5 @@
 <?php
+
 namespace verbi\yii2ExtendedActiveRecord\base;
 
 /**
@@ -6,8 +7,9 @@ namespace verbi\yii2ExtendedActiveRecord\base;
  * @link https://github.com/verbi/yii2-extended-activerecord/
  * @license https://opensource.org/licenses/GPL-3.0
  */
-class DynamicModel extends \yii\base\DynamicModel
-{
+class DynamicModel extends \yii\base\DynamicModel {
+
     use \verbi\yii2Helpers\traits\ComponentTrait;
-    use \verbi\yii2ExtendedActiveRecord\traits\ModelFormTrait;
+
+use \verbi\yii2ExtendedActiveRecord\traits\ModelFormTrait;
 }

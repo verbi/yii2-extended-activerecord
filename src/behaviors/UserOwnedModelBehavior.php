@@ -15,37 +15,29 @@ use yii\validators\Validator;
  * @license https://opensource.org/licenses/GPL-3.0
  */
 class UserOwnedModelBehavior extends Behavior {
+
     use \verbi\yii2ExtendedAccessControl\traits\PermissionCreatorTrait;
-//    use \verbi\yii2ExtendedAccessControl\traits\PermissionCreatorTrait {
-//        getPermission as protected _permissionCreatorTraitGetPermission;
-//    }
-//    
-//    public function getPermission($accessType) {
-//        die($accessType);
-//    }
-    
+
     public $rule = [
         'class' => 'verbi\yii2ExtendedActiveRecord\rbac\UserOwnedRule',
     ];
-    
     public $attributeName = 'owner_id';
-    
+
     public function events() {
         $ownerClass = $this->owner->className();
         return [
             $ownerClass::$EVENT_AFTER_GET_FORM_ATTRIBUTES => 'afterGetFormAttributes',
             $ownerClass::$EVENT_AFTER_CREATE_VALIDATORS => 'afterCreateValidators',
-//            AccessRule::$EVENT_MATCH_MODEL => 'eventMatchModel',
         ];
     }
 
     public function eventMatchModel(GeneralFunctionEvent $event) {
-        if($this->owner->isOwner($event->params['user']->getId())) {
+        if ($this->owner->isOwner($event->params['user']->getId())) {
             return true;
         }
         return false;
     }
-    
+
     public function afterGetFormAttributes(GeneralFunctionEvent $event) {
         if ($this->owner && isset($event->params['attributes']) && array_key_exists($this->attributeName, $event->params['attributes'])) {
             $params = $event->params;
@@ -78,41 +70,42 @@ class UserOwnedModelBehavior extends Behavior {
             }
         }
     }
-    
+
     public function addAuthRules($controller, $parent = null) {
         $auth = Yii::$app->authManager;
-        if($auth) {
-            $explodedClassName = explode('\\',$this->className());
+        if ($auth) {
+            $explodedClassName = explode('\\', $this->className());
             $roleName = end($explodedClassName) . '-owner';
-            if(!$owner = $auth->getRole($roleName)) {
+            if (!$owner = $auth->getRole($roleName)) {
                 $owner = $auth->createRole($roleName);
                 $newRule = new \verbi\yii2ExtendedActiveRecord\rbac\UserOwnedRule;
-                if(!$rule = $auth->getRule($newRule->name)) {
+                if (!$rule = $auth->getRule($newRule->name)) {
                     // add the rule
                     $rule = $newRule;
                     $auth->add($rule);
                 }
-                
+
                 $owner->ruleName = $rule->name;
                 $auth->add($owner);
             }
             // add the "updateOwnPost" permission and associate the rule with it.
-            foreach(array_keys($controller->getActions()) as $actionId) {
-                $permissionName = $this->owner->className().'-'.$actionId.'-Own';
-                if(!$permission = $auth->getPermission($permissionName)) {
+            foreach (array_keys($controller->getActions()) as $actionId) {
+                $permissionName = $this->owner->className() . '-' . $actionId . '-Own';
+                if (!$permission = $auth->getPermission($permissionName)) {
                     $permission = $auth->createPermission($permissionName);
                     $permission->description = $actionId . ' own ' . $this->owner->className();
                     $permission->ruleName = $rule->name;
                     $auth->add($permission);
                 }
-                if($parent) {
+                if ($parent) {
                     $auth->addChild($permission, $parent);
                 }
             }
         }
     }
-    
+
     public function isOwner($user) {
-        return $user !== null && $this->owner->{$this->attributeName}==$user;
+        return $user !== null && $this->owner->{$this->attributeName} == $user;
     }
+
 }

@@ -12,8 +12,9 @@ use verbi\yii2ExtendedActiveRecord\db\ActiveRecord;
  * @license https://opensource.org/licenses/GPL-3.0
  */
 class LoggedActiveRecord extends ActiveRecord {
+
     use \verbi\yii2Helpers\traits\ComponentTrait;
-    
+
     /**
      * Saves and logs.
      * 
@@ -53,4 +54,5 @@ class LoggedActiveRecord extends ActiveRecord {
         }
         return false;
     }
+
 }

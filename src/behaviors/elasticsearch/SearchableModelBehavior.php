@@ -11,18 +11,20 @@ use verbi\yii2ExtendedActiveRecord\elasticsearch\ActiveRecord as ElasticSearchAc
  * @license https://opensource.org/licenses/GPL-3.0
  */
 class SearchableModelBehavior extends Behavior {
+
     public $searchModel;
-    
+
     public function search($data, $formName = null) {
         $model = $this->owner;
-       
-        if($this->owner->searchModel instanceof ElasticSearchActiveRecord) {
+
+        if ($this->owner->searchModel instanceof ElasticSearchActiveRecord) {
             $model = $this->owner->searchModel;
         }
-        
+
         // search logic
-        if($model instanceof ElasticSearchActiveRecord) {
+        if ($model instanceof ElasticSearchActiveRecord) {
             
         }
     }
+
 }

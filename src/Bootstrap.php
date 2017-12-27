@@ -1,5 +1,7 @@
 <?php
+
 namespace nodge\eauth;
+
 use Yii;
 use yii\base\BootstrapInterface;
 
@@ -10,13 +12,13 @@ use yii\base\BootstrapInterface;
  * @link https://github.com/verbi/yii2-extended-activerecord/
  * @license https://opensource.org/licenses/GPL-3.0
  */
-class Bootstrap implements BootstrapInterface
-{
+class Bootstrap implements BootstrapInterface {
+
     /**
      * @inheritdoc
      */
-    public function bootstrap($app)
-    {
+    public function bootstrap($app) {
         Yii::setAlias('@yii2ExtendedActiveRecord', __DIR__);
     }
+
 }

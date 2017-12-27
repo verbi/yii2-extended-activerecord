@@ -19,10 +19,10 @@ class AuditableModelBehavior extends Behavior {
         parent::init();
         $attributes = [
             'created_on' => function($obj) {
-                return $obj->owner->getIsNewRecord?date('Y-m-d H:i:s'):$obj->created_on;
+                return $obj->owner->getIsNewRecord ? date('Y-m-d H:i:s') : $obj->created_on;
             },
             'created_by' => function($obj) {
-                return $obj->owner->getIsNewRecord?Yii::$app->user->identity->getId():$obj->created_by;
+                return $obj->owner->getIsNewRecord ? Yii::$app->user->identity->getId() : $obj->created_by;
             },
             'updated_by' => function($obj) {
                 return Yii::$app->user->identity->getId();
@@ -33,7 +33,7 @@ class AuditableModelBehavior extends Behavior {
         ];
         $this->attributes = array_merge($attributes, $this->attributes);
     }
-    
+
     public function events() {
         $ownerClass = $this->owner->className();
         return [
@@ -68,7 +68,7 @@ class AuditableModelBehavior extends Behavior {
                             }
                         }
                         $validator = Validator::createValidator(
-                            'default', $this->owner, [$attribute], ['value' => \Yii::$app->user->identity->getId()]
+                                        'default', $this->owner, [$attribute], ['value' => \Yii::$app->user->identity->getId()]
                         );
                         $validators = $event->params['validators'];
                         $validators->prepend($validator);
@@ -81,7 +81,7 @@ class AuditableModelBehavior extends Behavior {
     }
 
     public function afterSave($event) {
-//        die($this->)
-//        die(print_r($this->owner->getAttributes(),true));
+        
     }
+
 }

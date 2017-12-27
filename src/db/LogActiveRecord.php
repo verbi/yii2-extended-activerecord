@@ -11,6 +11,7 @@ use verbi\yii2ExtendedActiveRecord\db\ActiveRecord;
  * @license https://opensource.org/licenses/GPL-3.0
  */
 class LogActiveRecord extends ActiveRecord {
+
     use \verbi\yii2Helpers\traits\ComponentTrait;
 
     /**
@@ -34,4 +35,5 @@ class LogActiveRecord extends ActiveRecord {
         }
         return parent::save($runValidation, $attributeNames);
     }
+
 }

@@ -17,6 +17,7 @@ use yii\web\JsExpression;
  * @license https://opensource.org/licenses/GPL-3.0
  */
 class PhoneValidator extends Validator {
+
     /**
      * @var mixed
      */
@@ -85,4 +86,5 @@ class PhoneValidator extends Validator {
                 . '}'
                 . '}');
     }
+
 }

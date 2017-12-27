@@ -1,4 +1,5 @@
 <?php
+
 namespace verbi\yii2ExtendedActiveRecord\traits;
 
 use verbi\yii2DynamicForms\components\Form;
@@ -6,6 +7,7 @@ use verbi\yii2Helpers\events\GeneralFunctionEvent;
 use yii\web\JsExpression;
 
 trait ModelFormTrait {
+
     public static $builtInFormFields = [
         'richText' => [
             'type' => Form::INPUT_WIDGET,
@@ -13,16 +15,15 @@ trait ModelFormTrait {
             'options' => [
                 //'preset' => 'basic',
                 'preset' => 'custom',
-                
                 'clientOptions' => [
                     'removeButtons' => 'Subscript,Superscript,Flash,Table,HorizontalRule,Smiley,SpecialChar,PageBreak,Iframe,Image,others,Color,background',
                     'toolbarGroups' => [
                         ['name' => 'undo'],
                         ['name' => 'basicstyles', 'groups' => ['basicstyles', 'cleanup']],
-                        ['name' => 'list', ],
+                        ['name' => 'list',],
                         //['name' => 'colors'],
                         ['name' => 'links', 'groups' => ['links', 'insert']],
-                        //['name' => 'others', 'groups' => ['others', 'about']],
+                    //['name' => 'others', 'groups' => ['others', 'about']],
                     ],
                     'removePlugins' => 'elementspath',
                     'resize_enabled' => false,
@@ -31,11 +32,9 @@ trait ModelFormTrait {
             ],
         ]
     ];
-    
     public static $builtInFormFieldsValidatorMapping = [
         'richText' => 'richText',
     ];
-    
     public static $EVENT_BEFORE_GET_FORM_ATTRIBUTES = 'beforeGetFormAttributes';
     public static $EVENT_AFTER_GET_FORM_ATTRIBUTES = 'afterGetFormAttributes';
     public $attributeFormInputTypes = [];
@@ -116,10 +115,10 @@ trait ModelFormTrait {
     }
 
     public function generateActiveField($attribute) {
-        if($this->hasMethod('hasValidator')) {
-            foreach(static::$builtInFormFieldsValidatorMapping as $validator => $field) {
-                if($this->hasValidator($validator, $attribute)) {
-                    if(is_string($field) && isset(static::$builtInFormFields[$field])) {
+        if ($this->hasMethod('hasValidator')) {
+            foreach (static::$builtInFormFieldsValidatorMapping as $validator => $field) {
+                if ($this->hasValidator($validator, $attribute)) {
+                    if (is_string($field) && isset(static::$builtInFormFields[$field])) {
                         return static::$builtInFormFields[$field];
                     }
                     return $field;
@@ -148,7 +147,7 @@ trait ModelFormTrait {
             } else {
                 return $input;
             }
-        } elseif($this->hasMethod('getRelation')) {
+        } elseif ($this->hasMethod('getRelation')) {
             $relation = $this->getRelation($attribute, false);
             if ($relation instanceof \yii\db\ActiveQueryInterface) {
                 $input = [
@@ -167,14 +166,14 @@ trait ModelFormTrait {
                                 'dataType' => 'json',
                                 'data' => new JsExpression('function(params) { return {"q":params.term }}'),
                                 'processResults' => new JsExpression('function (data, params) {'
-                                    . 'var items = new Array();'
-                                    . 'for (var i = 0; data.length > i; i++) {'
+                                        . 'var items = new Array();'
+                                        . 'for (var i = 0; data.length > i; i++) {'
                                         . 'items.push( {id:data[i].id,text:data[i].text});'
-                                    . '}'
-                                    . 'return {'
+                                        . '}'
+                                        . 'return {'
                                         . 'results: items'
-                                    . '};'
-                                . '}'),
+                                        . '};'
+                                        . '}'),
                             ],
                             'tags' => false,
                             'maximumInputLength' => 20,
@@ -218,7 +217,7 @@ trait ModelFormTrait {
 
     public function getAttributeColumn($attribute) {
         $tableSchema = false;
-        if($this->hasMethod('getTableSchema')){
+        if ($this->hasMethod('getTableSchema')) {
             $tableSchema = $this->getTableSchema();
         }
         if ($tableSchema === false || !isset($tableSchema->columns[$attribute])) {
@@ -242,4 +241,5 @@ trait ModelFormTrait {
         }
         return $this->generateColumnFormat($column);
     }
+
 }

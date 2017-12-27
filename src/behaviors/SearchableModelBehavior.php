@@ -24,10 +24,8 @@ class SearchableModelBehavior extends Behavior {
     protected $values = [];
     protected $fieldSets = [];
 
-    
-    
     public function getAttributesForSearch() {
-        if(isset($this->attributes)) {
+        if (isset($this->attributes)) {
             return $this->attributes;
         }
         return array_slice($this->owner->attributes(), 2);
@@ -40,7 +38,7 @@ class SearchableModelBehavior extends Behavior {
         $query = $modelClass::find();
         foreach (array_keys($this->fields) as $name) {
             if (isset($this->values[$name])) {
-                $query->andWhere('MATCH (' . implode(',', $this->owner->getAttributesForSearch() ). ') AGAINST (:' . $name . ' IN NATURAL LANGUAGE MODE)', [':' . $name => $this->values[$name]]);
+                $query->andWhere('MATCH (' . implode(',', $this->owner->getAttributesForSearch()) . ') AGAINST (:' . $name . ' IN NATURAL LANGUAGE MODE)', [':' . $name => $this->values[$name]]);
             }
         }
         return $query;
@@ -58,4 +56,5 @@ class SearchableModelBehavior extends Behavior {
     protected function generateWhereCondition($field, $query) {
         $tableSchema = $this->owner->getTableSchema();
     }
+
 }
