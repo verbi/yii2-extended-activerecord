@@ -10,7 +10,6 @@ use yii\base\Model;
  * @link https://github.com/verbi/Yii2-Helpers/
  * @license https://opensource.org/licenses/GPL-3.0
  */
-
 class ModelValidator extends Validator {
 
     /**
@@ -40,7 +39,7 @@ class ModelValidator extends Validator {
             return null;
         }
 
-        return [$this->message . ' ' . print_r($value->getErrors(), true), []];
+        return [$this->message, []];
     }
 
 }

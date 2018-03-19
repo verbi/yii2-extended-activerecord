@@ -21,6 +21,7 @@ class UserOwnedModelBehavior extends Behavior {
     public $rule = [
         'class' => 'verbi\yii2ExtendedActiveRecord\rbac\UserOwnedRule',
     ];
+    
     public $attributeName = 'owner_id';
 
     public function events() {
@@ -50,20 +51,27 @@ class UserOwnedModelBehavior extends Behavior {
     public function afterCreateValidators(GeneralFunctionEvent $event) {
         if ($this->owner) {
             if (
-                    !\Yii::$app->user->isGuest && isset($event->params['validators']) && $event->params['validators'] instanceof ArrayObject
+                    isset($event->params['validators']) && $event->params['validators'] instanceof ArrayObject
             ) {
                 if ($this->owner->hasAttribute($this->attributeName)) {
+                    $sw = true;
                     foreach ($event->params['validators'] as $validator) {
-                        if (
-                                $validator instanceof DefaultValueValidator && in_array($this->attributeName, $validator->attributes)) {
-                            return;
+                        if ($validator instanceof DefaultValueValidator && in_array($this->attributeName, $validator->attributes)) {
+                            $sw = false;
                         }
                     }
-                    $validator = Validator::createValidator(
-                                    'default', $this->owner, [$this->attributeName], ['value' => \Yii::$app->user->identity->getId()]
-                    );
                     $validators = $event->params['validators'];
-                    $validators->prepend($validator);
+                    $validators->prepend(Validator::createValidator(
+                                        'exist', $this->owner, [$this->attributeName], ['targetClass' => \Yii::$app->user->identityClass, 'targetAttribute' => [$this->attributeName => 'id'], 'skipOnError' => true]
+                        ));
+                    if($sw) {
+                        $validator = Validator::createValidator(
+                                        'default', $this->owner, [$this->attributeName], ['value' => \Yii::$app->user->identity?\Yii::$app->user->identity->getId():null]
+                        );
+                        
+                        $validators->prepend($validator);
+                    }
+                    
                     $event->setReturnValue($validators);
                     return;
                 }
@@ -107,5 +115,4 @@ class UserOwnedModelBehavior extends Behavior {
     public function isOwner($user) {
         return $user !== null && $this->owner->{$this->attributeName} == $user;
     }
-
 }

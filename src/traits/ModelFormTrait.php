@@ -49,6 +49,7 @@ trait ModelFormTrait {
         'widget' => Form::INPUT_WIDGET,
         'datetime' => [
             'type' => Form::INPUT_WIDGET,
+            'widgetClass' => '\kartik\widgets\DatePicker'
         ],
     ];
     public $formInputOptions = [
@@ -114,6 +115,14 @@ trait ModelFormTrait {
         return $this->generateActiveField($name);
     }
 
+    protected function mergeFormIntputOptions($format) {
+        $input = $this->formInputs[$format];
+        if(isset($this->formInputOptions)) {
+            $input = array_merge(is_array($input)?$input:['type'=>$input,],$this->formInputOptions);
+        }
+        return $input;
+    }
+    
     public function generateActiveField($attribute) {
         if ($this->hasMethod('hasValidator')) {
             foreach (static::$builtInFormFieldsValidatorMapping as $validator => $field) {
@@ -127,6 +136,7 @@ trait ModelFormTrait {
         }
         $column = $this->getAttributeColumn($attribute);
         if ($column && isset($this->formInputs[$this->generateColumnFormat($column)])) {
+            return $this->mergeFormIntputOptions($this->generateColumnFormat($column));
             return $this->formInputs[$this->generateColumnFormat($column)];
         } elseif ($column) {
             if (preg_match('/^(password|pass|passwd|passcode)$/i', $column->name)) {
@@ -184,7 +194,7 @@ trait ModelFormTrait {
                 return $input;
             }
         }
-        return $this->formInputs[$this->generateColumnFormat($column)];
+        return $this->mergeFormIntputOptions($this->generateColumnFormat($column));
     }
 
     /**
@@ -196,7 +206,7 @@ trait ModelFormTrait {
         if (!$column) {
             return 'text';
         }
-        if ($column->phpType === 'boolean') {
+        if ($column->phpType === 'boolean' || $column->type === 'smallint') {
             return 'boolean';
         } elseif ($column->type === 'text') {
             return 'ntext';

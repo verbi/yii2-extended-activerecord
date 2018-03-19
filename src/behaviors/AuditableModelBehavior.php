@@ -5,6 +5,9 @@ namespace verbi\yii2ExtendedActiveRecord\behaviors;
 use Yii;
 use verbi\yii2Helpers\events\GeneralFunctionEvent;
 use verbi\yii2Helpers\behaviors\base\Behavior;
+use verbi\yii2Helpers\base\ArrayObject;
+use verbi\yii2ExtendedActiveRecord\validators\SetValueValidator;
+use yii\validators\Validator;
 
 /**
  * @author Philip Verbist <philip.verbist@gmail.com>
@@ -13,25 +16,74 @@ use verbi\yii2Helpers\behaviors\base\Behavior;
  */
 class AuditableModelBehavior extends Behavior {
 
-    private $attributes = [];
+    private $attributes;
 
     public function init() {
         parent::init();
-        $attributes = [
-            'created_on' => function($obj) {
-                return $obj->owner->getIsNewRecord ? date('Y-m-d H:i:s') : $obj->created_on;
-            },
-            'created_by' => function($obj) {
-                return $obj->owner->getIsNewRecord ? Yii::$app->user->identity->getId() : $obj->created_by;
-            },
-            'updated_by' => function($obj) {
-                return Yii::$app->user->identity->getId();
-            },
-            'updated_on' => function($obj) {
-                return date('Y-m-d H:i:s');
-            },
-        ];
-        $this->attributes = array_merge($attributes, $this->attributes);
+        
+        
+        if (!is_array($this->attributes)) {
+            $identity = Yii::$app->user->identity;
+            $this->attributes = [
+                'created_on' => [
+                    'validators' => [
+                        [
+                            SetValueValidator::className(),
+                            'onlyIfNewRecord' => false,
+                            'value' => Yii::$app->formatter->asDatetime(time()),
+                        ],
+                        [
+                            'datetime',
+                        ],
+                    ],
+                ],
+                'created_by' => [
+                    'validators' => [
+                        [
+                            SetValueValidator::className(),
+                            'value' => $identity?$identity->getId():null,
+                        ],
+                        [
+                            'exist',
+                            'skipOnError' => true,
+                            'targetClass' => Yii::$app->user->identityClass,
+                            'targetAttribute' => [
+                                'created_by' => 'id',
+                            ],
+                        ],
+                    ],
+                ],
+                'updated_by' => [
+                    'validators' => [
+                        [
+                            SetValueValidator::className(),
+                            'onlyIfNewRecord' => false,
+                            'value' => $identity?$identity->getId():null,
+                        ],
+                        [
+                            'exist',
+                            'skipOnError' => true,
+                            'targetClass' => Yii::$app->user->identityClass,
+                            'targetAttribute' => [
+                                'updated_by' => 'id',
+                            ],
+                        ],
+                    ],
+                ],
+                'updated_on' => [
+                    'validators' => [
+                        [
+                            SetValueValidator::className(),
+                            'onlyIfNewRecord' => false,
+                            'value' =>  Yii::$app->formatter->asDatetime(time()),
+                        ],
+                        [
+                            'datetime',
+                        ],
+                    ],
+                ],
+            ];
+        }
     }
 
     public function events() {
@@ -57,23 +109,24 @@ class AuditableModelBehavior extends Behavior {
 
     public function afterCreateValidators(GeneralFunctionEvent $event) {
         if ($this->owner) {
-            if (
-                    !\Yii::$app->user->isGuest && isset($event->params['validators']) && $event->params['validators'] instanceof ArrayObject
-            ) {
-                array_walk($this->attributes, function($function, $attribute) use ($event) {
+            if (isset($event->params['validators']) && $event->params['validators'] instanceof ArrayObject) {
+                array_walk($this->attributes, function($settings, $attribute) use ($event) {
                     if ($this->owner->hasAttribute($attribute)) {
-                        foreach ($event->params['validators'] as $validator) {
-                            if ($validator instanceof DefaultValueValidator && in_array($attribute, $validator->attributes)) {
-                                return;
+                        $validators = $event->params['validators'];
+                        if (isset($settings['validators']) && is_array($settings['validators'])) {
+                            foreach ($settings['validators'] as $validator) {
+
+                                $validatorName = array_shift($validator);
+
+                                $validators->append(
+                                        Validator::createValidator(
+                                                $validatorName, $this->owner, [$attribute], $validator
+                                        )
+                                );
                             }
                         }
-                        $validator = Validator::createValidator(
-                                        'default', $this->owner, [$attribute], ['value' => \Yii::$app->user->identity->getId()]
-                        );
-                        $validators = $event->params['validators'];
-                        $validators->prepend($validator);
+
                         $event->setReturnValue($validators);
-                        return;
                     }
                 });
             }
