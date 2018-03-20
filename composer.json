@@ -3,7 +3,7 @@
 	"description": "Yii2 Social login Extension.",
 	"keywords": ["yii2", "extension", "activerecord"],
 	"type": "yii2-extension",
-	"license": "GPLv3",
+	"license": "GPL-3.0-or-later",
 	"authors": [
 		{
 			"name": "Philip Verbist",
